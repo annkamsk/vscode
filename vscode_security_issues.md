@@ -33,7 +33,7 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 
 #### From tsconfig.monaco.json
 
-|Nr|At|Error|Code|Fix type|
+|Nr|At|Error|Code|Status|
 | --- | --- | --- | --- | --- |
 |1|[src/vs/editor/browser/config/charWidthReader.ts#L132](https://github.com/microsoft/vscode/blob/master/src/vs/editor/browser/config/charWidthReader.ts#L132)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```testElement.innerHTML = htmlString;  ```|||
 |2|[src/vs/editor/browser/view/viewLayer.ts#L510](https://github.com/microsoft/vscode/blob/master/src/vs/editor/browser/view/viewLayer.ts#L510)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.domNode.innerHTML = newLinesHTML;```|||
@@ -65,7 +65,7 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |28|[src/vs/editor/standalone/browser/inspectTokens/inspectTokens.ts#L242](https://github.com/microsoft/vscode/blob/master/src/vs/editor/standalone/browser/inspectTokens/inspectTokens.ts#L242)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this._domNode.innerHTML = result;  Found 28 errors. ```|||
 
 #### From tsconfig.json
-|Nr|At|Error|Code|Fix type|
+|Nr|At|Error|Code|Status|
 | --- | --- | --- | --- | --- |
 |1|[src/vs/base/browser/markdownRenderer.ts#L158](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/markdownRenderer.ts#L158)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```span.innerHTML = strValue;```|||
 |2|[src/vs/base/browser/markdownRenderer.ts#L233](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/markdownRenderer.ts#L233)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```element.innerHTML = insane(renderedMarkdown, {  234 allowedSchemes,... 249 filter  250 });```|||
