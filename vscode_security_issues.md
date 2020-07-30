@@ -28,7 +28,7 @@ In VSCode's `package.json` add:
 
 where `{tsconfig}` is either `src/tsconfig.json` or `src/tsconfig.monaco.json` (the second is a smaller subset of the first).
 
-You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.monaco.json`. Mostly caused by assigning a string to innerHTML property. 
+You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.monaco.json`. Mostly caused by assigning a string to innerHTML property.
 
 ### Issues
 
@@ -163,3 +163,9 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |93|[src/vs/workbench/test/browser/part.test.ts#L66](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/test/browser/part.test.ts#L66)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```titleLabel.innerHTML = 'Title';  ```|||
 |94|[src/vs/workbench/test/browser/part.test.ts#L75](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/test/browser/part.test.ts#L75)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```contentSpan.innerHTML = 'Content';```|||
 |95|[src/vs/workbench/test/browser/part.test.ts#L95](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/test/browser/part.test.ts#L95)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```contentSpan.innerHTML = 'Content';Found 95 errors. ```|||
+
+### Fixes
+
+| Issue | Fix |
+| --- | --- |
+| .innerHtml = '' | Replace every occurence with .innerText = '' |
