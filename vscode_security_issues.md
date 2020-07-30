@@ -10,10 +10,9 @@ This section mentions the issues discovered while running VSCode's code with tse
 ```
     git clone https://github.com/googleinterns/tsec
     cd tsec
-    npm install -g gulp
+    npm install gulp
     npm install
-    npm install -g typescript
-    tsc
+    node_modules/typescript/bin/tsc
 ```
 
 #### Run
@@ -22,11 +21,11 @@ In VSCode's `package.json` add:
 
 ```
 "scripts": {
-                "tsec-compile-check" : "{your tsec dir}/bin/tsec -p {tsconfig} --noEmit"
+                "tsec-compile-check" : "{PATH TO TSEC}/bin/tsec -p {TSCONFIG} --noEmit"
         }
 ```
 
-where `{tsconfig}` is either `src/tsconfig.json` or `src/tsconfig.monaco.json` (the second is a smaller subset of the first).
+where `{TSCONFIG}` is either `src/tsconfig.json` or `src/tsconfig.monaco.json` (the second is a smaller subset of the first).
 
 You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.monaco.json`. Mostly caused by assigning a string to innerHTML property. 
 
