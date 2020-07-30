@@ -35,7 +35,7 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 #### From tsconfig.monaco.json
 
 |Nr|At|Error|Code|Fix type|
-| --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 |1|[src/vs/editor/browser/config/charWidthReader.ts#L132](https://github.com/microsoft/vscode/blob/master/src/vs/editor/browser/config/charWidthReader.ts#L132)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```testElement.innerHTML = htmlString;  ```|||
 |2|[src/vs/editor/browser/view/viewLayer.ts#L510](https://github.com/microsoft/vscode/blob/master/src/vs/editor/browser/view/viewLayer.ts#L510)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.domNode.innerHTML = newLinesHTML;```|||
 |3|[src/vs/base/browser/markdownRenderer.ts#L158](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/markdownRenderer.ts#L158)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```span.innerHTML = strValue;```|||
@@ -67,7 +67,7 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 
 #### From tsconfig.json
 |Nr|At|Error|Code|Fix type|
-| --- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 |1|[src/vs/base/browser/markdownRenderer.ts#L158](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/markdownRenderer.ts#L158)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```span.innerHTML = strValue;```|||
 |2|[src/vs/base/browser/markdownRenderer.ts#L233](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/markdownRenderer.ts#L233)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```element.innerHTML = insane(renderedMarkdown, {  234 allowedSchemes,... 249 filter  250 });```|||
 |3|[src/vs/base/browser/ui/selectBox/selectBoxCustom.ts#L708](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/selectBox/selectBoxCustom.ts#L708)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```container.innerHTML = this.options[longest].text + (!!this.options[longest].decoratorRight ? (this.options[longest].decoratorRight + ' ') : '');```|||
