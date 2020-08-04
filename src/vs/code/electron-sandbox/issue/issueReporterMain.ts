@@ -277,33 +277,24 @@ export class IssueReporter extends Disposable {
 	}
 
 	private updateSettingsSearchDetails(data: ISettingsSearchIssueReporterData): void {
-		const target = document.querySelector('.block-settingsSearchResults .block-info');
+		const target = document.querySelector('.block-settingsSearchResults .block-info') as HTMLElement;
 		if (target) {
-			const details = `
-			<div class='block-settingsSearchResults-details'>
-				<div>Query: "${data.query}"</div>
-				<div>Literal match count: ${data.filterResultCount}</div>
-			</div>
-			`;
+			const detailsDiv = document.createElement('div');
+			detailsDiv.className = 'block-settingsSearchResults-details';
+			const queryDiv = document.createElement('div');
+			queryDiv.innerText = `Query: "${data.query}"`;
+			const countDiv = document.createElement('div');
+			countDiv.innerText = `Literal match count: ${data.filterResultCount}`;
+			detailsDiv.appendChild(queryDiv);
+			detailsDiv.appendChild(countDiv);
 
-			let table = `
-				<tr>
-					<th>Setting</th>
-					<th>Extension</th>
-					<th>Score</th>
-				</tr>`;
+			const tableHeader = ['Setting', 'Extension', 'Score'];
+			const tableValues = data.actualSearchResults
+				.map(setting => [setting.key, setting.extensionId, String(setting.score).slice(0, 5)]);
+			const table = this.createHtmlTableElement(tableValues, tableHeader);
 
-			data.actualSearchResults
-				.forEach(setting => {
-					table += `
-						<tr>
-							<td>${setting.key}</td>
-							<td>${setting.extensionId}</td>
-							<td>${String(setting.score).slice(0, 5)}</td>
-						</tr>`;
-				});
-
-			target.innerHTML = `${details}<table>${table}</table>`;
+			target.appendChild(detailsDiv);
+			target.appendChild(table);
 		}
 	}
 
@@ -925,42 +916,42 @@ export class IssueReporter extends Disposable {
 	}
 
 	private updateSystemInfo(state: IssueReporterModelData) {
-		const target = document.querySelector('.block-system .block-info');
+		const target = document.querySelector('.block-system .block-info') as HTMLElement;
+
 		if (target) {
+			target.innerText = '';
 			const systemInfo = state.systemInfo!;
-			let renderedData = `
-			<table>
-				<tr><td>CPUs</td><td>${systemInfo.cpus}</td></tr>
-				<tr><td>GPU Status</td><td>${Object.keys(systemInfo.gpuStatus).map(key => `${key}: ${systemInfo.gpuStatus[key]}`).join('<br>')}</td></tr>
-				<tr><td>Load (avg)</td><td>${systemInfo.load}</td></tr>
-				<tr><td>Memory (System)</td><td>${systemInfo.memory}</td></tr>
-				<tr><td>Process Argv</td><td>${systemInfo.processArgs}</td></tr>
-				<tr><td>Screen Reader</td><td>${systemInfo.screenReader}</td></tr>
-				<tr><td>VM</td><td>${systemInfo.vmHint}</td></tr>
-			</table>`;
+			const renderedData = [
+				['CPUs', systemInfo.cpus],
+				['GPU Status', Object.keys(systemInfo.gpuStatus).map(key => `${key}: ${systemInfo.gpuStatus[key]}`).join('\n')],
+				['Load (avg)', systemInfo.load],
+				['Memory (System)', systemInfo.memory],
+				['Process Argv', systemInfo.processArgs],
+				['Screen Reader', systemInfo.screenReader],
+				['VM', systemInfo.vmHint],
+			];
+			const renderedDataTable = this.createHtmlTableElement(renderedData);
+			target.appendChild(renderedDataTable);
 
 			systemInfo.remoteData.forEach(remote => {
+				target.appendChild(document.createElement('hr'));
 				if (isRemoteDiagnosticError(remote)) {
-					renderedData += `
-					<hr>
-					<table>
-						<tr><td>Remote</td><td>${remote.hostName}</td></tr>
-						<tr><td></td><td>${remote.errorMessage}</td></tr>
-					</table>`;
+					let remoteDataTable = this.createHtmlTableElement([
+						['Remote', remote.hostName],
+						['', remote.errorMessage],
+					]);
+					target.appendChild(remoteDataTable);
 				} else {
-					renderedData += `
-					<hr>
-					<table>
-						<tr><td>Remote</td><td>${remote.hostName}</td></tr>
-						<tr><td>OS</td><td>${remote.machineInfo.os}</td></tr>
-						<tr><td>CPUs</td><td>${remote.machineInfo.cpus}</td></tr>
-						<tr><td>Memory (System)</td><td>${remote.machineInfo.memory}</td></tr>
-						<tr><td>VM</td><td>${remote.machineInfo.vmHint}</td></tr>
-					</table>`;
+					let remoteDataTable = this.createHtmlTableElement([
+						['Remote', remote.hostName],
+						['OS', remote.machineInfo.os],
+						['CPUs', remote.machineInfo.cpus],
+						['Memory (System)', remote.machineInfo.memory],
+						['VM', remote.machineInfo.vmHint],
+					]);
+					target.appendChild(remoteDataTable);
 				}
 			});
-
-			target.innerHTML = renderedData;
 		}
 	}
 
@@ -1079,7 +1070,7 @@ export class IssueReporter extends Disposable {
 	}
 
 	private updateExtensionTable(extensions: IssueReporterExtensionData[], numThemeExtensions: number): void {
-		const target = document.querySelector('.block-extensions .block-info');
+		const target = document.querySelector('.block-extensions .block-info') as HTMLElement;
 		if (target) {
 			if (this.configuration.disableExtensions) {
 				target.innerHTML = localize('disabledExtensions', "Extensions are disabled");
@@ -1090,45 +1081,60 @@ export class IssueReporter extends Disposable {
 			extensions = extensions || [];
 
 			if (!extensions.length) {
-				target.innerHTML = 'Extensions: none' + themeExclusionStr;
+				target.innerText = 'Extensions: none' + themeExclusionStr;
 				return;
 			}
 
 			const table = this.getExtensionTableHtml(extensions);
-			target.innerHTML = `<table>${table}</table>${themeExclusionStr}`;
+			target.innerText = '';
+			target.appendChild(table);
+
+			const themeExclusionText = document.createTextNode(themeExclusionStr);
+			target.appendChild(themeExclusionText);
 		}
 	}
 
 	private updateSearchedExtensionTable(extensions: IssueReporterExtensionData[]): void {
-		const target = document.querySelector('.block-searchedExtensions .block-info');
+		const target = document.querySelector('.block-searchedExtensions .block-info') as HTMLElement;
 		if (target) {
 			if (!extensions.length) {
-				target.innerHTML = 'Extensions: none';
+				target.innerText = 'Extensions: none';
 				return;
 			}
 
 			const table = this.getExtensionTableHtml(extensions);
-			target.innerHTML = `<table>${table}</table>`;
+			target.innerText = '';
+			target.appendChild(table);
 		}
 	}
 
-	private getExtensionTableHtml(extensions: IssueReporterExtensionData[]): string {
-		let table = `
-			<tr>
-				<th>Extension</th>
-				<th>Author (truncated)</th>
-				<th>Version</th>
-			</tr>`;
+	private getExtensionTableHtml(extensions: IssueReporterExtensionData[]): HTMLTableElement {
+		const headers = ['Extension', 'Author (truncated)', 'Version'];
+		const values = extensions.map(extension => [extension.name, extension.publisher.substr(0, 3), extension.version]);
+		return this.createHtmlTableElement(values, headers);
+	}
 
-		table += extensions.map(extension => {
-			return `
-				<tr>
-					<td>${extension.name}</td>
-					<td>${extension.publisher.substr(0, 3)}</td>
-					<td>${extension.version}</td>
-				</tr>`;
-		}).join('');
-
+	private createHtmlTableElement(data: (string | undefined)[][], header?: string[]): HTMLTableElement {
+		const table = document.createElement('table');
+		if (header) {
+			const thead = table.createTHead();
+			let row = thead.insertRow();
+			for (let key of header) {
+				let th = document.createElement('th');
+				let text = document.createTextNode(key);
+				th.appendChild(text);
+				row.appendChild(th);
+			}
+		}
+		data.forEach(entry => {
+			let row = table.insertRow();
+			for (let value of entry) {
+				let cell = row.insertCell();
+				let text = document.createTextNode(value || '');
+				cell.appendChild(text);
+				cell.style.whiteSpace = 'pre-line'; // preserve new lines
+			}
+		});
 		return table;
 	}
 
