@@ -166,6 +166,52 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 
 ### Fixes
 
-| Issue | Fix |
-| --- | --- |
-| .innerHtml = '' | Replace every occurence with .innerText = '' |
+#### Replace `innerHTML` with `innerText` when assigning non-html string
+`.innerHtml = ''` => `.innerText = ''`  
+`.innerHtml = '&nbsp;'` => `.innerText = '\u00a0';`  
+`.innerHtml = '&#160'` => `.innerText = '\u00a0';`  
+
+#### Replace manual construction of table with DOM APIs calls
+
+Replace:
+```typescript
+.innerHtml = `
+<table>
+	<tr>
+		<th>...</th>
+		...
+	</tr>
+	<tr>
+		<td>...</td>
+	...
+</table>`;
+
+```
+
+with using:
+```typescript
+createHtmlTableElement(data: (string | undefined)[][], header?: string[]): HTMLTableElement {
+		const table = document.createElement('table');
+		if (header) {
+			const thead = table.createTHead();
+			let row = thead.insertRow();
+			for (let key of header) {
+				let th = document.createElement('th');
+				let text = document.createTextNode(key);
+				th.appendChild(text);
+				row.appendChild(th);
+			}
+		}
+		data.forEach(entry => {
+			let row = table.insertRow();
+			for (let value of entry) {
+				let cell = row.insertCell();
+				let text = document.createTextNode(value || '');
+				cell.appendChild(text);
+				cell.style.whiteSpace = 'pre-line'; // preserve new lines
+			}
+		});
+		return table;
+	}
+```
+
