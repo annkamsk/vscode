@@ -277,8 +277,9 @@ export class IssueReporter extends Disposable {
 	}
 
 	private updateSettingsSearchDetails(data: ISettingsSearchIssueReporterData): void {
-		const target = document.querySelector('.block-settingsSearchResults .block-info') as HTMLElement;
+		const target = document.querySelector<HTMLElement>('.block-settingsSearchResults .block-info');
 		if (target) {
+			target.innerText = '';
 			const detailsDiv = document.createElement('div');
 			detailsDiv.className = 'block-settingsSearchResults-details';
 			const queryDiv = document.createElement('div');
@@ -287,13 +288,13 @@ export class IssueReporter extends Disposable {
 			countDiv.innerText = `Literal match count: ${data.filterResultCount}`;
 			detailsDiv.appendChild(queryDiv);
 			detailsDiv.appendChild(countDiv);
+			target.appendChild(detailsDiv);
 
 			const tableHeader = ['Setting', 'Extension', 'Score'];
 			const tableValues = data.actualSearchResults
 				.map(setting => [setting.key, setting.extensionId, String(setting.score).slice(0, 5)]);
-			const table = this.createHtmlTableElement(tableValues, tableHeader);
 
-			target.appendChild(detailsDiv);
+			const table = this.createHtmlTableElement(tableHeader, tableValues);
 			target.appendChild(table);
 		}
 	}
@@ -916,7 +917,7 @@ export class IssueReporter extends Disposable {
 	}
 
 	private updateSystemInfo(state: IssueReporterModelData) {
-		const target = document.querySelector('.block-system .block-info') as HTMLElement;
+		const target = document.querySelector<HTMLElement>('.block-system .block-info');
 
 		if (target) {
 			target.innerText = '';
@@ -930,19 +931,19 @@ export class IssueReporter extends Disposable {
 				['Screen Reader', systemInfo.screenReader],
 				['VM', systemInfo.vmHint],
 			];
-			const renderedDataTable = this.createHtmlTableElement(renderedData);
+			const renderedDataTable = this.createHtmlTableElement([], renderedData);
 			target.appendChild(renderedDataTable);
 
 			systemInfo.remoteData.forEach(remote => {
 				target.appendChild(document.createElement('hr'));
 				if (isRemoteDiagnosticError(remote)) {
-					let remoteDataTable = this.createHtmlTableElement([
+					const remoteDataTable = this.createHtmlTableElement([], [
 						['Remote', remote.hostName],
 						['', remote.errorMessage],
 					]);
 					target.appendChild(remoteDataTable);
 				} else {
-					let remoteDataTable = this.createHtmlTableElement([
+					const remoteDataTable = this.createHtmlTableElement([], [
 						['Remote', remote.hostName],
 						['OS', remote.machineInfo.os],
 						['CPUs', remote.machineInfo.cpus],
@@ -1070,7 +1071,7 @@ export class IssueReporter extends Disposable {
 	}
 
 	private updateExtensionTable(extensions: IssueReporterExtensionData[], numThemeExtensions: number): void {
-		const target = document.querySelector('.block-extensions .block-info') as HTMLElement;
+		const target = document.querySelector<HTMLElement>('.block-extensions .block-info');
 		if (target) {
 			if (this.configuration.disableExtensions) {
 				target.innerHTML = localize('disabledExtensions', "Extensions are disabled");
@@ -1095,7 +1096,7 @@ export class IssueReporter extends Disposable {
 	}
 
 	private updateSearchedExtensionTable(extensions: IssueReporterExtensionData[]): void {
-		const target = document.querySelector('.block-searchedExtensions .block-info') as HTMLElement;
+		const target = document.querySelector<HTMLElement>('.block-searchedExtensions .block-info');
 		if (target) {
 			if (!extensions.length) {
 				target.innerText = 'Extensions: none';
@@ -1111,10 +1112,10 @@ export class IssueReporter extends Disposable {
 	private getExtensionTableHtml(extensions: IssueReporterExtensionData[]): HTMLTableElement {
 		const headers = ['Extension', 'Author (truncated)', 'Version'];
 		const values = extensions.map(extension => [extension.name, extension.publisher.substr(0, 3), extension.version]);
-		return this.createHtmlTableElement(values, headers);
+		return this.createHtmlTableElement(headers, values);
 	}
 
-	private createHtmlTableElement(data: (string | undefined)[][], header?: string[]): HTMLTableElement {
+	private createHtmlTableElement(header: Array<string>, data: Array<Array<string | undefined>>): HTMLTableElement {
 		const table = document.createElement('table');
 		if (header) {
 			const thead = table.createTHead();
