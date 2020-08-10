@@ -25,6 +25,7 @@ import { ServiceCollection } from 'vs/platform/instantiation/common/serviceColle
 import { IMainProcessService, MainProcessService } from 'vs/platform/ipc/electron-sandbox/mainProcessService';
 import { ISettingsSearchIssueReporterData, IssueReporterData, IssueReporterExtensionData, IssueReporterFeatures, IssueReporterStyles, IssueType } from 'vs/platform/issue/common/issue';
 import { IWindowConfiguration } from 'vs/platform/windows/common/windows';
+import { createHtmlTableElement } from 'vs/base/common/htmlElement';
 
 const MAX_URL_LENGTH = 2045;
 
@@ -294,7 +295,7 @@ export class IssueReporter extends Disposable {
 			const tableValues = data.actualSearchResults
 				.map(setting => [setting.key, setting.extensionId, String(setting.score).slice(0, 5)]);
 
-			const table = this.createHtmlTableElement(tableHeader, tableValues);
+			const table = createHtmlTableElement(tableHeader, tableValues);
 			target.appendChild(table);
 		}
 	}
@@ -931,19 +932,19 @@ export class IssueReporter extends Disposable {
 				['Screen Reader', systemInfo.screenReader],
 				['VM', systemInfo.vmHint],
 			];
-			const renderedDataTable = this.createHtmlTableElement([], renderedData);
+			const renderedDataTable = createHtmlTableElement([], renderedData);
 			target.appendChild(renderedDataTable);
 
 			systemInfo.remoteData.forEach(remote => {
 				target.appendChild(document.createElement('hr'));
 				if (isRemoteDiagnosticError(remote)) {
-					const remoteDataTable = this.createHtmlTableElement([], [
+					const remoteDataTable = createHtmlTableElement([], [
 						['Remote', remote.hostName],
 						['', remote.errorMessage],
 					]);
 					target.appendChild(remoteDataTable);
 				} else {
-					const remoteDataTable = this.createHtmlTableElement([], [
+					const remoteDataTable = createHtmlTableElement([], [
 						['Remote', remote.hostName],
 						['OS', remote.machineInfo.os],
 						['CPUs', remote.machineInfo.cpus],
@@ -1112,31 +1113,7 @@ export class IssueReporter extends Disposable {
 	private getExtensionTableHtml(extensions: IssueReporterExtensionData[]): HTMLTableElement {
 		const headers = ['Extension', 'Author (truncated)', 'Version'];
 		const values = extensions.map(extension => [extension.name, extension.publisher.substr(0, 3), extension.version]);
-		return this.createHtmlTableElement(headers, values);
-	}
-
-	private createHtmlTableElement(header: Array<string>, data: Array<Array<string | undefined>>): HTMLTableElement {
-		const table = document.createElement('table');
-		if (header) {
-			const thead = table.createTHead();
-			let row = thead.insertRow();
-			for (let key of header) {
-				let th = document.createElement('th');
-				let text = document.createTextNode(key);
-				th.appendChild(text);
-				row.appendChild(th);
-			}
-		}
-		data.forEach(entry => {
-			let row = table.insertRow();
-			for (let value of entry) {
-				let cell = row.insertCell();
-				let text = document.createTextNode(value || '');
-				cell.appendChild(text);
-				cell.style.whiteSpace = 'pre-line'; // preserve new lines
-			}
-		});
-		return table;
+		return createHtmlTableElement(headers, values);
 	}
 
 	private openLink(event: MouseEvent): void {

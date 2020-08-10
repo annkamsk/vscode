@@ -8,7 +8,6 @@ import { CharCode } from 'vs/base/common/charCode';
 import { Color } from 'vs/base/common/color';
 import { KeyCode } from 'vs/base/common/keyCodes';
 import { Disposable } from 'vs/base/common/lifecycle';
-import { escape } from 'vs/base/common/strings';
 import { ContentWidgetPositionPreference, IActiveCodeEditor, ICodeEditor, IContentWidget, IContentWidgetPosition } from 'vs/editor/browser/editorBrowser';
 import { EditorAction, ServicesAccessor, registerEditorAction, registerEditorContribution } from 'vs/editor/browser/editorExtensions';
 import { Position } from 'vs/editor/common/core/position';
@@ -22,6 +21,10 @@ import { IStandaloneThemeService } from 'vs/editor/standalone/common/standaloneT
 import { editorHoverBackground, editorHoverBorder, editorHoverForeground } from 'vs/platform/theme/common/colorRegistry';
 import { HIGH_CONTRAST, registerThemingParticipant } from 'vs/platform/theme/common/themeService';
 import { InspectTokensNLS } from 'vs/editor/common/standaloneStrings';
+import {
+	createHTMLElement,
+	createHtmlTableElement,
+} from 'vs/base/common/htmlElement';
 
 
 class InspectTokensController extends Disposable implements IEditorContribution {
@@ -115,23 +118,11 @@ function renderTokenText(tokenText: string): string {
 		let charCode = tokenText.charCodeAt(charIndex);
 		switch (charCode) {
 			case CharCode.Tab:
-				result += '&rarr;';
+				result += '\u2192'; // &rarr;
 				break;
 
 			case CharCode.Space:
-				result += '&middot;';
-				break;
-
-			case CharCode.LessThan:
-				result += '&lt;';
-				break;
-
-			case CharCode.GreaterThan:
-				result += '&gt;';
-				break;
-
-			case CharCode.Ampersand:
-				result += '&amp;';
+				result += '\xB7'; // &middot;
 				break;
 
 			default:
@@ -211,7 +202,7 @@ class InspectTokensWidget extends Disposable implements IContentWidget {
 			}
 		}
 
-		let result = '';
+		this._domNode.innerText = '';
 
 		let lineContent = this._model.getLineContent(position.lineNumber);
 		let tokenText = '';
@@ -220,26 +211,34 @@ class InspectTokensWidget extends Disposable implements IContentWidget {
 			let tokenEndIndex = token1Index + 1 < data.tokens1.length ? data.tokens1[token1Index + 1].offset : lineContent.length;
 			tokenText = lineContent.substring(tokenStartIndex, tokenEndIndex);
 		}
-		result += `<h2 class="tm-token">${renderTokenText(tokenText)}<span class="tm-token-length">(${tokenText.length} ${tokenText.length === 1 ? 'char' : 'chars'})</span></h2>`;
+		const heading = createHTMLElement<HTMLHeadingElement>('h2', renderTokenText(tokenText), 'tm-token');
+		this._domNode.appendChild(heading);
+		const textLengthSpan = createHTMLElement<HTMLSpanElement>('span', `${tokenText.length} ${tokenText.length === 1 ? 'char' : 'chars'}`, 'tm-token-length');
+		heading.appendChild(textLengthSpan);
 
-		result += `<hr class="tokens-inspect-separator" style="clear:both"/>`;
+		this._domNode.appendChild(createHTMLElement<HTMLHRElement>('hr', '', 'tokens-inspect-separator', new Map([['clear', 'both']])));
 
 		let metadata = (token2Index << 1) + 1 < data.tokens2.length ? this._decodeMetadata(data.tokens2[(token2Index << 1) + 1]) : null;
-		result += `<table class="tm-metadata-table"><tbody>`;
-		result += `<tr><td class="tm-metadata-key">language</td><td class="tm-metadata-value">${metadata ? escape(metadata.languageIdentifier.language) : '-?-'}</td>`;
-		result += `<tr><td class="tm-metadata-key">token type</td><td class="tm-metadata-value">${metadata ? this._tokenTypeToString(metadata.tokenType) : '-?-'}</td>`;
-		result += `<tr><td class="tm-metadata-key">font style</td><td class="tm-metadata-value">${metadata ? this._fontStyleToString(metadata.fontStyle) : '-?-'}</td>`;
-		result += `<tr><td class="tm-metadata-key">foreground</td><td class="tm-metadata-value">${metadata ? Color.Format.CSS.formatHex(metadata.foreground) : '-?-'}</td>`;
-		result += `<tr><td class="tm-metadata-key">background</td><td class="tm-metadata-value">${metadata ? Color.Format.CSS.formatHex(metadata.background) : '-?-'}</td>`;
-		result += `</tbody></table>`;
+		const metadataTable = createHtmlTableElement([], [
+			['language', metadata ? metadata.languageIdentifier.language : '-?-'],
+			['token type', metadata ? this._tokenTypeToString(metadata.tokenType) : '-?-'],
+			['font style', metadata ? this._fontStyleToString(metadata.fontStyle) : '-?-'],
+			['foreground', metadata ? Color.Format.CSS.formatHex(metadata.foreground) : '-?-'],
+			['background', metadata ? Color.Format.CSS.formatHex(metadata.background) : '-?-']
+		]);
+		metadataTable.className = 'tm-metadata-table';
+		for (const row of metadataTable.rows) {
+			row.cells[0].className = 'tm-metadata-key';
+			row.cells[1].className = 'tm-metadata-value';
+		}
+		this._domNode.appendChild(metadataTable);
 
-		result += `<hr class="tokens-inspect-separator"/>`;
+		this._domNode.appendChild(createHTMLElement<HTMLHRElement>('hr', '', 'tokens-inspect-separator'));
 
 		if (token1Index < data.tokens1.length) {
-			result += `<span class="tm-token-type">${escape(data.tokens1[token1Index].type)}</span>`;
+			this._domNode.appendChild(createHTMLElement<HTMLSpanElement>('span', data.tokens1[token1Index].type, 'tm-token-type'));
 		}
 
-		this._domNode.innerHTML = result;
 		this._editor.layoutContentWidget(this);
 	}
 

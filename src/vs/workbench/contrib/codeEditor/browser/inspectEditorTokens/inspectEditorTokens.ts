@@ -10,7 +10,6 @@ import { CharCode } from 'vs/base/common/charCode';
 import { Color } from 'vs/base/common/color';
 import { KeyCode } from 'vs/base/common/keyCodes';
 import { Disposable } from 'vs/base/common/lifecycle';
-import { escape } from 'vs/base/common/strings';
 import { ContentWidgetPositionPreference, IActiveCodeEditor, ICodeEditor, IContentWidget, IContentWidgetPosition } from 'vs/editor/browser/editorBrowser';
 import { EditorAction, ServicesAccessor, registerEditorAction, registerEditorContribution } from 'vs/editor/browser/editorExtensions';
 import { Position } from 'vs/editor/common/core/position';
@@ -30,6 +29,7 @@ import { ColorThemeData, TokenStyleDefinitions, TokenStyleDefinition, TextMateTh
 import { SemanticTokenRule, TokenStyleData, TokenStyle } from 'vs/platform/theme/common/tokenClassificationRegistry';
 import { IConfigurationService } from 'vs/platform/configuration/common/configuration';
 import { SEMANTIC_HIGHLIGHTING_SETTING_ID, IEditorSemanticHighlightingOptions } from 'vs/editor/common/services/modelServiceImpl';
+import { createHTMLElement, createHtmlTableElement, createHTMLTableRow } from 'vs/base/common/htmlElement';
 
 class InspectEditorTokensController extends Disposable implements IEditorContribution {
 
@@ -151,23 +151,11 @@ function renderTokenText(tokenText: string): string {
 		let charCode = tokenText.charCodeAt(charIndex);
 		switch (charCode) {
 			case CharCode.Tab:
-				result += '&rarr;';
+				result += '\u2192'; // &rarr;
 				break;
 
 			case CharCode.Space:
-				result += '&middot;';
-				break;
-
-			case CharCode.LessThan:
-				result += '&lt;';
-				break;
-
-			case CharCode.GreaterThan:
-				result += '&gt;';
-				break;
-
-			case CharCode.Ampersand:
-				result += '&amp;';
+				result += '\xB7'; // &middot;
 				break;
 
 			default:
@@ -246,8 +234,7 @@ class InspectEditorTokensWidget extends Disposable implements IContentWidget {
 			if (this._isDisposed) {
 				return;
 			}
-			let text = this._compute(grammar, semanticTokens, position);
-			this._domNode.innerHTML = text;
+			this._compute(grammar, semanticTokens, position);
 			this._domNode.style.maxWidth = `${Math.max(this._editor.getLayoutInfo().width * 0.66, 500)}px`;
 			this._editor.layoutContentWidget(this);
 		}, (err) => {
@@ -268,11 +255,13 @@ class InspectEditorTokensWidget extends Disposable implements IContentWidget {
 		return this._themeService.getColorTheme().semanticHighlighting;
 	}
 
-	private _compute(grammar: IGrammar | null, semanticTokens: SemanticTokensResult | null, position: Position): string {
+	private _compute(grammar: IGrammar | null, semanticTokens: SemanticTokensResult | null, position: Position): void {
+
 		const textMateTokenInfo = grammar && this._getTokensAtPosition(grammar, position);
 		const semanticTokenInfo = semanticTokens && this._getSemanticTokenAtPosition(semanticTokens, position);
 		if (!textMateTokenInfo && !semanticTokenInfo) {
-			return 'No grammar or semantic tokens available.';
+			this._domNode.innerText = 'No grammar or semantic tokens available.';
+			return;
 		}
 
 		let tmMetadata = textMateTokenInfo?.metadata;
@@ -282,92 +271,99 @@ class InspectEditorTokensWidget extends Disposable implements IContentWidget {
 		const tmTokenText = textMateTokenInfo && renderTokenText(this._model.getLineContent(position.lineNumber).substring(textMateTokenInfo.token.startIndex, textMateTokenInfo.token.endIndex));
 
 		const tokenText = semTokenText || tmTokenText || '';
+		this._domNode.innerText = '';
 
-		let result = '';
-		result += `<h2 class="tiw-token">${tokenText}<span class="tiw-token-length">(${tokenText.length} ${tokenText.length === 1 ? 'char' : 'chars'})</span></h2>`;
-		result += `<hr class="tiw-metadata-separator" style="clear:both"/>`;
+		const textLengthHeading = createHTMLElement<HTMLHeadingElement>('h2', tokenText, 'tiw-token');
+		this._domNode.appendChild(textLengthHeading);
+		const textLengthSpan = createHTMLElement<HTMLSpanElement>('span', `${tokenText.length} ${tokenText.length === 1 ? 'char' : 'chars'}`, 'tiw-token-length');
+		textLengthHeading.appendChild(textLengthSpan);
 
-		result += `<table class="tiw-metadata-table"><tbody>`;
-		result += `<tr><td class="tiw-metadata-key">language</td><td class="tiw-metadata-value">${escape(tmMetadata?.languageIdentifier.language || '')}</td></tr>`;
-		result += `<tr><td class="tiw-metadata-key">standard token type</td><td class="tiw-metadata-value">${this._tokenTypeToString(tmMetadata?.tokenType || StandardTokenType.Other)}</td></tr>`;
+		this._domNode.appendChild(createHTMLElement<HTMLHRElement>('hr', '', 'tiw-metadata-separator', new Map([['clear', 'both']])));
 
-		result += this._formatMetadata(semMetadata, tmMetadata);
-		result += `</tbody></table>`;
+		const columnClasses = ['tiw-metadata-key', 'tiw-metadata-value'];
+		const metadataTable = createHtmlTableElement([], [], 'tiw-metadata-table');
+		metadataTable.appendChild(createHTMLTableRow(['language', tmMetadata?.languageIdentifier.language || ''], columnClasses));
+		metadataTable.appendChild(createHTMLTableRow(['standard token type', this._tokenTypeToString(tmMetadata?.tokenType || StandardTokenType.Other)], columnClasses));
+		this._formatMetadata(semMetadata, tmMetadata).forEach(row => {
+			metadataTable.appendChild(row);
+		});
+		this._domNode.appendChild(metadataTable);
 
 		if (semanticTokenInfo) {
-			result += `<hr class="tiw-metadata-separator"/>`;
-			result += `<table class="tiw-metadata-table"><tbody>`;
-			result += `<tr><td class="tiw-metadata-key">semantic token type</td><td class="tiw-metadata-value">${semanticTokenInfo.type}</td></tr>`;
+			this._domNode.appendChild(createHTMLElement<HTMLHRElement>('hr', '', 'tiw-metadata-separator'));
+
+			const semanticTable = createHtmlTableElement([], [], 'tiw-metadata-table');
+			semanticTable.appendChild(createHTMLTableRow(['semantic token type', semanticTokenInfo.type], columnClasses));
+
 			if (semanticTokenInfo.modifiers.length) {
-				result += `<tr><td class="tiw-metadata-key">modifiers</td><td class="tiw-metadata-value">${semanticTokenInfo.modifiers.join(' ')}</td></tr>`;
+				semanticTable.appendChild(createHTMLTableRow(['modifiers', semanticTokenInfo.modifiers.join(' ')], columnClasses)); // TODO
 			}
 			if (semanticTokenInfo.metadata) {
 				const properties: (keyof TokenStyleData)[] = ['foreground', 'bold', 'italic', 'underline'];
 				const propertiesByDefValue: { [rule: string]: string[] } = {};
-				const allDefValues = []; // remember the order
+				const allDefValues = new Array<HTMLTableCellElement>(); // remember the order
 				// first collect to detect when the same rule is used for multiple properties
-				for (let property of properties) {
+				for (const property of properties) {
 					if (semanticTokenInfo.metadata[property] !== undefined) {
 						const definition = semanticTokenInfo.definitions[property];
-						const defValue = this._renderTokenStyleDefinition(definition, property);
-						let properties = propertiesByDefValue[defValue];
+						const defValueCell = this._renderTokenStyleDefinition(definition, property);
+						let properties = propertiesByDefValue[defValueCell.innerHTML];
 						if (!properties) {
-							propertiesByDefValue[defValue] = properties = [];
-							allDefValues.push(defValue);
+							propertiesByDefValue[defValueCell.innerHTML] = properties = [];
+							allDefValues.push(defValueCell);
 						}
 						properties.push(property);
 					}
 				}
-				for (let defValue of allDefValues) {
-					result += `<tr><td class="tiw-metadata-key">${propertiesByDefValue[defValue].join(', ')}</td><td class="tiw-metadata-value">${defValue}</td></tr>`;
+				for (const defValue of allDefValues) {
+					const row = createHTMLTableRow([propertiesByDefValue[defValue.innerHTML].join(', ')], columnClasses);
+					row.appendChild(defValue);
+					semanticTable.appendChild(row);
 				}
 			}
-			result += `</tbody></table>`;
+			this._domNode.appendChild(semanticTable);
 		}
 
 		if (textMateTokenInfo) {
 			let theme = this._themeService.getColorTheme();
-			result += `<hr class="tiw-metadata-separator"/>`;
-			result += `<table class="tiw-metadata-table"><tbody>`;
+			this._domNode.appendChild(createHTMLElement<HTMLHRElement>('hr', '', 'tiw-metadata-separator'));
+			const textMateTable = createHtmlTableElement([], [], 'tiw-metadata-table');
 			if (tmTokenText && tmTokenText !== tokenText) {
-				result += `<tr><td class="tiw-metadata-key">textmate token</td><td class="tiw-metadata-value">${tmTokenText} (${tmTokenText.length})</td></tr>`;
+				textMateTable.appendChild(createHTMLTableRow(['textmate token', `${tmTokenText} (${tmTokenText.length})`], columnClasses));
 			}
-			let scopes = '';
-			for (let i = textMateTokenInfo.token.scopes.length - 1; i >= 0; i--) {
-				scopes += escape(textMateTokenInfo.token.scopes[i]);
-				if (i > 0) {
-					scopes += '<br>';
-				}
-			}
-			result += `<tr><td class="tiw-metadata-key">textmate scopes</td><td class="tiw-metadata-value tiw-metadata-scopes">${scopes}</td></tr>`;
+			const scopes = textMateTokenInfo.token.scopes.reverse().join('\n');
+			textMateTable.appendChild(createHTMLTableRow(['textmate scopes', scopes], ['tiw-metadata-key', 'tiw-metadata-value tiw-metadata-scopes']));
 
 			let matchingRule = findMatchingThemeRule(theme, textMateTokenInfo.token.scopes, false);
 			const semForeground = semanticTokenInfo?.metadata?.foreground;
 			if (matchingRule) {
-				let defValue = `<code class="tiw-theme-selector">${matchingRule.rawSelector}\n${JSON.stringify(matchingRule.settings, null, '\t')}</code>`;
+				const code = createHTMLElement('code', `${matchingRule.rawSelector}\n${JSON.stringify(matchingRule.settings, null, '\t')}`, 'tiw-theme-selector');
 				if (semForeground !== textMateTokenInfo.metadata.foreground) {
+					const foregroundRow = createHTMLTableRow(['foreground', ''], columnClasses);
 					if (semForeground) {
-						defValue = `<s>${defValue}</s>`;
+						const strike = createHTMLElement('s');
+						strike.appendChild(code);
+						foregroundRow.cells[1].appendChild(strike);
+					} else {
+						foregroundRow.cells[1].appendChild(code);
 					}
-					result += `<tr><td class="tiw-metadata-key">foreground</td><td class="tiw-metadata-value">${defValue}</td></tr>`;
+					textMateTable.appendChild(foregroundRow);
 				}
 			} else if (!semForeground) {
-				result += `<tr><td class="tiw-metadata-key">foreground</td><td class="tiw-metadata-value">No theme selector</td></tr>`;
+				textMateTable.appendChild(createHTMLTableRow(['foreground', 'No theme selector'], columnClasses));
 			}
-			result += `</tbody></table>`;
+			this._domNode.appendChild(textMateTable);
 		}
-		return result;
 	}
 
-	private _formatMetadata(semantic?: IDecodedMetadata, tm?: IDecodedMetadata) {
-		let result = '';
+	private _formatMetadata(semantic?: IDecodedMetadata, tm?: IDecodedMetadata): Array<HTMLTableRowElement> {
+		const rows = new Array<HTMLTableRowElement>();
 
-		function render(property: 'foreground' | 'background') {
+		function render(property: 'foreground' | 'background'): string | undefined {
 			let value = semantic?.[property] || tm?.[property];
 			if (value !== undefined) {
 				const semanticStyle = semantic?.[property] ? 'tiw-metadata-semantic' : '';
-				result += `<tr><td class="tiw-metadata-key">${property}</td><td class="tiw-metadata-value ${semanticStyle}">${value}</td></tr>`;
-
+				rows.push(createHTMLTableRow([property, value], ['tiw-metadata-key', `tiw-metadata-value ${semanticStyle}`]));
 			}
 			return value;
 		}
@@ -377,28 +373,34 @@ class InspectEditorTokensWidget extends Disposable implements IContentWidget {
 		if (foreground && background) {
 			const backgroundColor = Color.fromHex(background), foregroundColor = Color.fromHex(foreground);
 			if (backgroundColor.isOpaque()) {
-				result += `<tr><td class="tiw-metadata-key">contrast ratio</td><td class="tiw-metadata-value">${backgroundColor.getContrastRatio(foregroundColor.makeOpaque(backgroundColor)).toFixed(2)}</td></tr>`;
+				rows.push(createHTMLTableRow(['contrast ratio', backgroundColor.getContrastRatio(foregroundColor.makeOpaque(backgroundColor)).toFixed(2)],
+					['tiw-metadata-key', 'tiw-metadata-value']));
 			} else {
-				result += '<tr><td class="tiw-metadata-key">Contrast ratio cannot be precise for background colors that use transparency</td><td class="tiw-metadata-value"></td></tr>';
+				rows.push(createHTMLTableRow(['Contrast ratio cannot be precise for background colors that use transparency', ''],
+					['tiw-metadata-key', 'tiw-metadata-value']));
 			}
 		}
 
-		let fontStyleLabels: string[] = [];
+		const fontStyleLabels = new Array<HTMLSpanElement>();
 
 		function addStyle(key: 'bold' | 'italic' | 'underline') {
 			if (semantic && semantic[key]) {
-				fontStyleLabels.push(`<span class='tiw-metadata-semantic'>${key}</span>`);
+				fontStyleLabels.push(createHTMLElement<HTMLSpanElement>('span', key, 'tiw-metadata-semantic'));
 			} else if (tm && tm[key]) {
-				fontStyleLabels.push(key);
+				fontStyleLabels.push(createHTMLElement<HTMLSpanElement>('span', key));
 			}
 		}
 		addStyle('bold');
 		addStyle('italic');
 		addStyle('underline');
 		if (fontStyleLabels.length) {
-			result += `<tr><td class="tiw-metadata-key">font style</td><td class="tiw-metadata-value">${fontStyleLabels.join(' ')}</td></tr>`;
+			const row = createHTMLTableRow(['font style', ''], ['tiw-metadata-key', 'tiw-metadata-value']);
+			fontStyleLabels.forEach(style => {
+				row.cells[1].appendChild(style);
+			});
+			rows.push(row);
 		}
-		return result;
+		return rows;
 	}
 
 	private _decodeMetadata(metadata: number): IDecodedMetadata {
@@ -549,9 +551,11 @@ class InspectEditorTokensWidget extends Disposable implements IContentWidget {
 		return null;
 	}
 
-	private _renderTokenStyleDefinition(definition: TokenStyleDefinition | undefined, property: keyof TokenStyleData): string {
+	private _renderTokenStyleDefinition(definition: TokenStyleDefinition | undefined, property: keyof TokenStyleData): HTMLTableCellElement {
+		const cell = createHTMLElement<HTMLTableCellElement>('td', '', 'tiw-metadata-value');
+
 		if (definition === undefined) {
-			return '';
+			return cell;
 		}
 		const theme = this._themeService.getColorTheme() as ColorThemeData;
 
@@ -561,20 +565,23 @@ class InspectEditorTokensWidget extends Disposable implements IContentWidget {
 			const matchingRule = scopesDefinition[property];
 			if (matchingRule && scopesDefinition.scope) {
 				const strScopes = Array.isArray(matchingRule.scope) ? matchingRule.scope.join(', ') : String(matchingRule.scope);
-				return `${escape(scopesDefinition.scope.join(' '))}<br><code class="tiw-theme-selector">${strScopes}\n${JSON.stringify(matchingRule.settings, null, '\t')}</code>`;
+				cell.innerText = scopesDefinition.scope.join(' ');
+				cell.appendChild(createHTMLElement<HTMLBRElement>('br'));
+				cell.appendChild(createHTMLElement('code', `${strScopes}\n${JSON.stringify(matchingRule.settings, null, '\t')}`, 'tiw-theme-selector'));
 			}
-			return '';
+			return cell;
 		} else if (SemanticTokenRule.is(definition)) {
 			const scope = theme.getTokenStylingRuleScope(definition);
 			if (scope === 'setting') {
-				return `User settings: ${definition.selector.id} - ${this._renderStyleProperty(definition.style, property)}`;
+				cell.innerText = `User settings: ${definition.selector.id} - ${this._renderStyleProperty(definition.style, property)}`;
 			} else if (scope === 'theme') {
-				return `Color theme: ${definition.selector.id} - ${this._renderStyleProperty(definition.style, property)}`;
+				cell.innerText = `Color theme: ${definition.selector.id} - ${this._renderStyleProperty(definition.style, property)}`;
 			}
-			return '';
+			return cell;
 		} else {
 			const style = theme.resolveTokenStyleValue(definition);
-			return `Default: ${style ? this._renderStyleProperty(style, property) : ''}`;
+			cell.innerText = `Default: ${style ? this._renderStyleProperty(style, property) : ''}`;
+			return cell;
 		}
 	}
 
