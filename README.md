@@ -178,6 +178,7 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |9|[src/vs/editor/test/browser/controller/imeTester.ts#L144](https://github.com/microsoft/vscode/blob/master/src/vs/editor/test/browser/controller/imeTester.ts#L144)|```check.innerHTML = '[GOOD]';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |10|[src/vs/editor/test/browser/controller/imeTester.ts#L147](https://github.com/microsoft/vscode/blob/master/src/vs/editor/test/browser/controller/imeTester.ts#L147)|```check.innerHTML = '[BAD]';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |11|[src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L65](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L65)| ```const newDocument = new DOMParser().parseFromString(documentContent, 'text/html');```||
+
 ### Fixes
 
 #### Replace `innerHTML` with `innerText` when assigning non-html string
