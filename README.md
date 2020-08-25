@@ -70,8 +70,8 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |1|[src/vs/base/browser/markdownRenderer.ts#L158](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/markdownRenderer.ts#L158)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```span.innerHTML = strValue;```|
 |2|[src/vs/base/browser/markdownRenderer.ts#L233](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/markdownRenderer.ts#L233)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```element.innerHTML = insane(renderedMarkdown, {  234 allowedSchemes,... 249 filter  250 });```|
 |3|[src/vs/base/browser/ui/selectBox/selectBoxCustom.ts#L708](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/selectBox/selectBoxCustom.ts#L708)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```container.innerHTML = this.options[longest].text + (!!this.options[longest].decoratorRight ? (this.options[longest].decoratorRight + ' ') : '');```|
-|4|[src/vs/base/browser/ui/button/button.ts#L183](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/button/button.ts#L183)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this._element.innerHTML = renderCodicons(escape(value));```|
-|5|[src/vs/base/browser/ui/codicons/codiconLabel.ts#L16](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/codicons/codiconLabel.ts#L16)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this._container.innerHTML = renderCodicons(escape(text ?? ''));  ```|
+|4|[src/vs/base/browser/ui/button/button.ts#L183](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/button/button.ts#L183)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this._element.innerHTML = renderCodicons(escape(value));```|Render codicons|
+|5|[src/vs/base/browser/ui/codicons/codiconLabel.ts#L16](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/codicons/codiconLabel.ts#L16)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this._container.innerHTML = renderCodicons(escape(text ?? ''));  ```|Render codicons|
 |6|[src/vs/base/browser/ui/inputbox/inputBox.ts#L173](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/inputbox/inputBox.ts#L173)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.mirror.innerHTML = '&#160;';  ```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |7|[src/vs/base/browser/ui/inputbox/inputBox.ts#L532](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/inputbox/inputBox.ts#L532)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.mirror.innerHTML = '&#160;';  ```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |8|[src/vs/base/browser/ui/highlightedlabel/highlightedLabel.ts#L91](https://github.com/microsoft/vscode/blob/master/src/vs/base/browser/ui/highlightedlabel/highlightedLabel.ts#L91)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.domNode.innerHTML = htmlContent;  ```|
@@ -97,16 +97,16 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |28|[src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L223](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L223)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.markdownContainer.innerHTML = '';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |29|[src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L243](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L243)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.markdownContainer.innerHTML = '';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |30|[src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L294](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L294)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.templateData.foldingIndicator.innerHTML = '';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
-|31|[src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L297](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L297)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.templateData.foldingIndicator.innerHTML = renderCodicons('$(chevron-right)');```|
-|32|[src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L300](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L300)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.templateData.foldingIndicator.innerHTML = renderCodicons('$(chevron-down)');  ```|
-|33|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L91](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L91)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.label.innerHTML = renderCodicons(this._commandAction.label ?? '');  ```|
+|31|[src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L297](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L297)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.templateData.foldingIndicator.innerHTML = renderCodicons('$(chevron-right)');```|Render codicons|
+|32|[src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L300](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/markdownCell.ts#L300)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.templateData.foldingIndicator.innerHTML = renderCodicons('$(chevron-down)');  ```|Render codicons|
+|33|[src/vs/workbench/contrib/notebook/browser/view/renderers/commonViewComponents.ts#L34](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/commonViewComponents.ts#L34)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.label.innerHTML = renderCodicons(this._commandAction.label ?? '');  ```|Render codicons|
 |34|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L393](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L393)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```dragImageContainer.innerHTML = templateData.container.innerHTML;```|
 |35|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L415](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L415)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellContainer.innerHTML = '';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |36|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L805](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L805)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```dragImageContainer.innerHTML = templateData.container.innerHTML;```|
 |37|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L817](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L817)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```editorContainer.innerHTML = richEditorText;  ```|$ function can't be accessed [Cell renderer: Use DOM API instead of string concatenation](https://github.com/microsoft/vscode/pull/104662)|
-|38|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L995](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L995)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellRunStatusContainer.innerHTML = renderCodicons('$(check)');  ```|
-|39|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L997](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L997)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellRunStatusContainer.innerHTML = renderCodicons('$(error)');  ```|
-|40|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L999](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L999)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellRunStatusContainer.innerHTML = renderCodicons('$(sync~spin)');  ```|
+|38|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L995](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L995)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellRunStatusContainer.innerHTML = renderCodicons('$(check)');  ```|Render codicons|
+|39|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L997](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L997)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellRunStatusContainer.innerHTML = renderCodicons('$(error)');  ```|Render codicons|
+|40|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L999](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L999)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellRunStatusContainer.innerHTML = renderCodicons('$(sync~spin)');  ```|Render codicons|
 |41|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L1001](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L1001)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.cellRunStatusContainer.innerHTML = '';  ```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |42|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L1065](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L1065)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```templateData.outputContainer.innerHTML = '';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |43|[src/vs/workbench/browser/actions/developerActions.ts#L182](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/browser/actions/developerActions.ts#L182)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```keyboardMarker.innerHTML = '';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
@@ -119,7 +119,7 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |50|[src/vs/workbench/contrib/preferences/browser/settingsTree.ts#L1369](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/preferences/browser/settingsTree.ts#L1369)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```template.enumDescriptionElement.innerHTML = '';  ```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |51|[src/vs/workbench/contrib/notebook/browser/view/renderers/webviewPreloads.ts#L82](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/webviewPreloads.ts#L82)|TS21228: Do not assign variables to HTMLScriptElement#text or HTMLScriptElement#textContent, as this can lead to XSS.|```scriptTag.text = node.innerText;```|
 |52|[src/vs/workbench/contrib/notebook/browser/view/renderers/webviewPreloads.ts#L402](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/webviewPreloads.ts#L402)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```document.getElementById('container')!.innerHTML = '';  ```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
-|53|[src/vs/workbench/contrib/scm/browser/scmViewPane.ts#L143](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/scm/browser/scmViewPane.ts#L143)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.label.innerHTML = renderCodicons(escape(this.getAction().label));```|
+|53|[src/vs/workbench/contrib/scm/browser/scmViewPane.ts#L143](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/scm/browser/util.ts#L109)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.label.innerHTML = renderCodicons(escape(this.getAction().label));```| Render codicons |
 |54|[src/vs/workbench/contrib/extensions/browser/extensionsWidgets.ts#L58](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionsWidgets.ts#L58)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.container.innerHTML = '';```|
 |55|[src/vs/workbench/contrib/extensions/browser/extensionsWidgets.ts#L108](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionsWidgets.ts#L108)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this.container.innerHTML = '';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |56|[src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L432](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L432)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```template.content.innerHTML = ''; // Clear content before setting navbar actions.```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
@@ -154,14 +154,17 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |85|[src/vs/editor/standalone/browser/colorizer.ts#L43](https://github.com/microsoft/vscode/blob/master/src/vs/editor/standalone/browser/colorizer.ts#L43)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```domNode.innerHTML = str;```|
 |86|[src/vs/editor/standalone/browser/inspectTokens/inspectTokens.ts#L242](https://github.com/microsoft/vscode/blob/master/src/vs/editor/standalone/browser/inspectTokens/inspectTokens.ts#L242)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```this._domNode.innerHTML = result;  ```|
 |87|[src/vs/editor/test/browser/controller/imeTester.ts#L59](https://github.com/microsoft/vscode/blob/master/src/vs/editor/test/browser/controller/imeTester.ts#L59)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```output.innerHTML = r;  ```|
-|88|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L400](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L400)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(` $(alert) Unresponsive`));```|
-|89|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L407](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L407)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(bug) ${nls.localize('errors', "{0} uncaught errors", element.status.runtimeErrors.length)}`));```|
-|90|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L413](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L413)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(alert) ${element.status.messages[0].message}`));```|
-|91|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L419](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L419)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(remote) ${element.description.extensionLocation.authority}`));```|
-|92|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L424](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L424)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(remote) ${hostLabel}`));```|
+|88|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L400](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L400)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(` $(alert) Unresponsive`));```| Render codicons |
+|89|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L407](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L407)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(bug) ${nls.localize('errors', "{0} uncaught errors", element.status.runtimeErrors.length)}`));```| Render codicons |
+|90|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L413](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L413)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(alert) ${element.status.messages[0].message}`));```| Render codicons |
+|91|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L419](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L419)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(remote) ${element.description.extensionLocation.authority}`));```| Render codicons |
+|92|[src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L424](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor.ts#L424)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```el.innerHTML = renderCodicons(escape(`$(remote) ${hostLabel}`));```| Render codicons |
 |93|[src/vs/workbench/test/browser/part.test.ts#L66](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/test/browser/part.test.ts#L66)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```titleLabel.innerHTML = 'Title';  ```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |94|[src/vs/workbench/test/browser/part.test.ts#L75](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/test/browser/part.test.ts#L75)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```contentSpan.innerHTML = 'Content';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |95|[src/vs/workbench/test/browser/part.test.ts#L95](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/test/browser/part.test.ts#L95)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```contentSpan.innerHTML = 'Content';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
+|96|[src/vs/workbench/contrib/notebook/browser/diff/cellComponents.ts](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/diff/cellComponents.ts#L164)| |```this._foldingIndicator.innerHTML = renderCodicons('$(chevron-down)');``` | Render codicons |
+|97|[src/vs/workbench/contrib/notebook/browser/diff/cellComponents.ts](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/diff/cellComponents.ts#L162)| |```this._foldingIndicator.innerHTML = renderCodicons('$(chevron-right)');``` | Render codicons |
+|98|[src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L341](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/notebook/browser/view/renderers/cellRenderer.ts#L341)|TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.|```collapsedPart.innerHTML = renderCodicons('$(unfold)');```|Render codicons|
 
 #### Found through manual search (not found by tsec)
 
@@ -186,69 +189,17 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 `.innerHtml = '&nbsp;'` => `.innerText = '\u00a0';`
 `.innerHtml = '&#160'` => `.innerText = '\u00a0';`
 
-#### issueReporterMain: Use DOM API instead of string concatenation
+#### Use DOM API instead of string concatenation
+Use `dom.ts#$` function for creating HTMLElements.
 
-##### Replace manual construction of table
-
-Replace:
-```typescript
-.innerHtml = `
-<table>
-	<tr>
-		<th>...</th>
-		...
-	</tr>
-	<tr>
-		<td>...</td>
-	...
-</table>`;
+#### Render codicons
 
 ```
-
-with:
-```typescript
-createHtmlTableElement(data: (string | undefined)[][], header?: string[]): HTMLTableElement {
-		const table = document.createElement('table');
-		if (header) {
-			const thead = table.createTHead();
-			let row = thead.insertRow();
-			for (let key of header) {
-				let th = document.createElement('th');
-				let text = document.createTextNode(key);
-				th.appendChild(text);
-				row.appendChild(th);
-			}
-		}
-		data.forEach(entry => {
-			let row = table.insertRow();
-			for (let value of entry) {
-				let cell = row.insertCell();
-				let text = document.createTextNode(value || '');
-				cell.appendChild(text);
-				cell.style.whiteSpace = 'pre-line'; // preserve new lines
-			}
-		});
-		return table;
-	}
+el.innerHTML = renderCodicons(escape(`$(remote) ${element}`));
 ```
 
-##### Other HTML elements
+Remove
 
-```
-function createHTMLElement<T extends HTMLElement>(tag: HTMLElementTagName, content?: string, className?: string, style?: CSSStyleDeclarationMutable): T {
-	const element = document.createElement(tag);
 
-	if (className) {
-		element.className = className;
-	}
-	if (content) {
-		element.innerText = content;
-	}
-	if (style) {
-		style.styles.forEach((value, key) => element.style[key] = value);
-	}
-	return element as T;
-}
-```
 
 
