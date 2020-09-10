@@ -182,6 +182,8 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |12|[src/vs/code/electron-sandbox/issue/issueReporterMain.ts#L257](https://github.com/microsoft/vscode/blob/master/src/vs/code/electron-sandbox/issue/issueReporterMain.ts#L257)|```styleTag.innerHTML = content.join('\n');```|`content` includes only styles, not sure if violation|
 
 #### Found at runtime only
+Tested on VSCode's version with revision nr: 371f6306f9de7e704870e7d7263a96ebc5eb2c88
+
 |Nr.|Where|Code|
 |---|---|---|
 |1| [src/vs/workbench/services/keybinding/browser/keymapService.ts:444:31](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/services/keybinding/browser/keymapService.ts#L444)|```const worker = new Worker(url, { name: 'WorkerExtensionHost' });```|
@@ -191,23 +193,6 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |5| [src/vs/workbench/contrib/extensions/browser/extensionEditor.ts:64](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L64)|```const newDocument = new DOMParser().parseFromString(documentContent, 'text/html');```|
 |6| [src/vs/workbench/contrib/webview/browser/pre/main.js:370](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/webview/browser/pre/main.js#L370)|```const newDocument = new DOMParser().parseFromString(text, 'text/html');```
 
-### Fixes
-
-#### Replace `innerHTML` with `innerText` when assigning non-html string
-`.innerHtml = ''` => `.innerText = ''`
-`.innerHtml = '&nbsp;'` => `.innerText = '\u00a0';`
-`.innerHtml = '&#160'` => `.innerText = '\u00a0';`
-
-#### Use DOM API instead of string concatenation
-Use `dom.ts#$` function for creating HTMLElements.
-
-#### Render codicons
-
-```
-el.innerHTML = renderCodicons(escape(`$(remote) ${element}`));
-```
-
-Remove
 
 
 
