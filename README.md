@@ -10,9 +10,8 @@ This section mentions the issues discovered while running VSCode's code with tse
 ```
     git clone https://github.com/googleinterns/tsec
     cd tsec
-    npm install gulp
-    npm install
-    node_modules/typescript/bin/tsc
+    yarn install
+	yarn build
 ```
 
 #### Run
@@ -181,6 +180,17 @@ You should get 103 errors from `src/tsconfig.json` and 28 from `src/tsconfig.mon
 |10|[src/vs/editor/test/browser/controller/imeTester.ts#L147](https://github.com/microsoft/vscode/blob/master/src/vs/editor/test/browser/controller/imeTester.ts#L147)|```check.innerHTML = '[BAD]';```|[Replace `innerHTML` with `innerText` when assigning non-html string](https://github.com/microsoft/vscode/pull/103841)|
 |11|[src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L65](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L65)| ```const newDocument = new DOMParser().parseFromString(documentContent, 'text/html');```||
 |12|[src/vs/code/electron-sandbox/issue/issueReporterMain.ts#L257](https://github.com/microsoft/vscode/blob/master/src/vs/code/electron-sandbox/issue/issueReporterMain.ts#L257)|```styleTag.innerHTML = content.join('\n');```|`content` includes only styles, not sure if violation|
+
+#### Found at runtime only
+|Nr.|Where|Code|
+|---|---|---|
+|1| [src/vs/workbench/services/keybinding/browser/keymapService.ts:444:31](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/services/keybinding/browser/keymapService.ts#L444)|```const worker = new Worker(url, { name: 'WorkerExtensionHost' });```|
+|2| [src/vs/workbench/services/textMate/browser/abstractTextMateService.ts:234:4](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/services/textMate/browser/abstractTextMateService.ts#L234)|```const [vscodeTextmate, vscodeOniguruma] = await Promise.all([import('vscode-textmate'), this._getVSCodeOniguruma()]);```|
+|3| [src/vs/workbench/services/textMate/browser/abstractTextMateService.ts:404:37](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/services/textMate/browser/abstractTextMateService.ts#L404)|```const [vscodeOniguruma, wasm] = await Promise.all([import('vscode-oniguruma'), this._loadVSCodeOnigurumWASM()]);```|
+|4| [src/vs/loader.js:609:36](https://github.com/microsoft/vscode/blob/master/src/vs/loader.js#L609)|```scriptCallbacks[i].callback();```|
+|5| [src/vs/workbench/contrib/extensions/browser/extensionEditor.ts:64](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/extensions/browser/extensionEditor.ts#L64)|```const newDocument = new DOMParser().parseFromString(documentContent, 'text/html');```|
+|6| [src/vs/workbench/contrib/webview/browser/pre/main.js:370](https://github.com/microsoft/vscode/blob/master/src/vs/workbench/contrib/webview/browser/pre/main.js#L370)|```const newDocument = new DOMParser().parseFromString(text, 'text/html');```
+
 ### Fixes
 
 #### Replace `innerHTML` with `innerText` when assigning non-html string
